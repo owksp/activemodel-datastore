@@ -3,26 +3,26 @@
 #
 # The dataset instance is used to create, read, update, and delete entity objects.
 #
-# GCLOUD_PROJECT is an environment variable representing the Datastore project ID.
-# DATASTORE_KEYFILE_JSON is an environment variable that Datastore checks for credentials.
+# GOOGLE_CLOUD_PROJECT is an environment variable representing the Datastore project ID.
+# GOOGLE_APPLICATION_CREDENTIALS/GOOGLE_CLOUD_KEYFILE is an environment variable that Datastore checks for credentials.
 #
-# ENV['GCLOUD_KEYFILE_JSON'] = '{
+# ENV['GOOGLE_CLOUD_KEYFILE'] = '{
 #   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIFfb3...5dmFtABy\n-----END PRIVATE KEY-----\n",
 #   "client_email": "web-app@app-name.iam.gserviceaccount.com"
 # }'
 #
 module CloudDatastore
   if defined?(Rails) == 'constant'
-    if Rails.env.development?
-      ENV['DATASTORE_EMULATOR_HOST'] ||= 'localhost:8180'
-      ENV['GCLOUD_PROJECT'] ||= 'local-datastore'
-    elsif Rails.env.test?
-      ENV['DATASTORE_EMULATOR_HOST'] ||= 'localhost:8181'
-      ENV['GCLOUD_PROJECT'] ||= 'test-datastore'
-    elsif ENV['SERVICE_ACCOUNT_PRIVATE_KEY'].present? &&
-          ENV['SERVICE_ACCOUNT_CLIENT_EMAIL'].present?
-      ENV['GCLOUD_KEYFILE_JSON'] ||= '{"private_key": "' + ENV['SERVICE_ACCOUNT_PRIVATE_KEY'] + '",
-      "client_email": "' + ENV['SERVICE_ACCOUNT_CLIENT_EMAIL'] + '"}'
+    if not ENV['GOOGLE_APPLICATION_CREDENTIALS'].present?
+      if ENV['SERVICE_ACCOUNT_PRIVATE_KEY'].present? && ENV['SERVICE_ACCOUNT_CLIENT_EMAIL'].present?
+        ENV['GOOGLE_CLOUD_KEYFILE'] ||= '{"private_key": "' + ENV['SERVICE_ACCOUNT_PRIVATE_KEY'] + '","client_email": "' + ENV['SERVICE_ACCOUNT_CLIENT_EMAIL'] + '"}'
+      elsif Rails.env.development?
+        ENV['DATASTORE_EMULATOR_HOST'] ||= 'localhost:8180'
+        ENV['GOOGLE_CLOUD_PROJECT'] ||= 'local-datastore'
+      elsif Rails.env.test?
+        ENV['DATASTORE_EMULATOR_HOST'] ||= 'localhost:8181'
+        ENV['GOOGLE_CLOUD_PROJECT'] ||= 'test-datastore'
+      end
     end
   end
 
